@@ -21,7 +21,7 @@ VAR = SC    WORLD_DUAL-scenario
 # Alternatively to VAR/EXCEPT, conditions can achieve a similar effect and still respect EXCEPT declarations
 #CONDITIONS = TSK=1.0,3.0  RF1="some message here"  RF2=2,[1,2,3,4]
 #CONDITIONS = EAM=1,0  AE=0
-CONDITIONS = SC=noSelPressureBoth,noSelPressureB,independentAddition,lockstep,bFollowsA,bExactlyFollowsA
+CONDITIONS = SC=bFollowsA
 
 # EXCEPT = [SHORT NAME]=[condition],[SHORT NAME]=[condition],etc.
 # If all name/condition pairs are met for any EXCEPT, then that combination will not be run.

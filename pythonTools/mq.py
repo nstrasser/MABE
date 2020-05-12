@@ -34,15 +34,15 @@ import re
 from utils import pyreq
 import subprocess # invoking command line module installation
 
-pyreq.require("colorama,psutil") # quits if not found, even after it installs. must run this script again
+pyreq.require("colorama") # quits if not found, even after it installs. must run this script again
 
 # colored warning and error printing
 import colorama
 from colorama import Fore, Back, Style
-import psutil
+#import psutil
 
-if 'cmd' in psutil.Process().parent().name().lower(): # do only for cmd.exe, unnecessary for powershell.exe,bash,zsh,etc.
-    colorama.init(convert=True)
+#if 'cmd' in psutil.Process().parent().name().lower(): # do only for cmd.exe, unnecessary for powershell.exe,bash,zsh,etc.
+colorama.init(convert=True)
 
 def printError(msg,end='\n'):
     print(Style.BRIGHT+Fore.RED+"Error: "+msg+Style.RESET_ALL,end=end)

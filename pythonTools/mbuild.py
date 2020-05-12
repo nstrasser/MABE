@@ -19,6 +19,8 @@ if platform.system() == 'Windows':
 from libmbuild.modulewriter import write_modules_h
 from libmbuild.projectwriter import make_visual_studio_project, make_x_code_project, make_make_project, make_cmake_project, make_codeblocks_project, make_dev_cpp_project
 
+extra_compiler_flags = "-I/home/nadine/workspace/Empirical/source"
+
 parser = argparse.ArgumentParser()
 
 SUPPORTED_PROJECT_FILES='mk,make, vs,visual_studio, xc,x_code, dc,dev_cpp, cb,code_blocks, cm,cmake'
@@ -48,9 +50,9 @@ def touch(fname, mode=0o666, dir_fd=None, **kwargs): ## from https://stackoverfl
 
 compiler = args.compiler
 if args.debugOptimization:
-    compFlags='-Wno-c++98-compat -w -Wall -std=c++14 -g -O0 -lpthread -pthread'
+    compFlags='-Wno-c++98-compat -w -Wall -std=c++17 -g -O0 -lpthread -pthread ' + extra_compiler_flags
 else:
-    compFlags='-Wno-c++98-compat -w -Wall -std=c++14 -O3 -lpthread -pthread'
+    compFlags='-Wno-c++98-compat -w -Wall -std=c++17 -O3 -lpthread -pthread ' + extra_compiler_flags
 
 if (args.gprof):
     compFlags =  compFlags + ' -pg'
