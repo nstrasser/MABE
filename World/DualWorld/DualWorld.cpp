@@ -11,7 +11,7 @@
 #include "DualWorld.h"
 
 std::shared_ptr<ParameterLink<std::string>> DualWorld::scenarioPL = Parameters::register_parameter("WORLD_DUAL-scenario", (std::string) "noSelPressureBoth",
-	"Desired scenario on how agents from type A and B are combined (noSelPressureBoth, noSelPressureB, independentAddition, lockstep or bFollowsA are available).");
+	"Desired scenario on how agents from type A and B are combined (noSelPressureBoth, noSelPressureB, independentAddition, lockstep, bFollowsA, oneOffLockstep and matchingBitsLockstep are available).");
 std::shared_ptr<ParameterLink<double>> DualWorld::aMutationRatePL = Parameters::register_parameter("WORLD_DUAL-aMutationRate", 0.01,
 	"Mutation rate of agents from type A.");
 std::shared_ptr<ParameterLink<double>> DualWorld::bMutationRatePL = Parameters::register_parameter("WORLD_DUAL-bMutationRate", 0.01,
