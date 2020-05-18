@@ -218,7 +218,7 @@ double DualWorld::evalDual(DualAgent& dualAgent) {
 		double intermediateResultA = evalGenomeCountingInitialOnesNeutral(dualAgent.A->genome);
 		double intermediateResultB = evalGenomeCountingInitialOnesNeutral(dualAgent.B->genome);
 		std::cout << "intA: " << intermediateResultA << " intB: " << intermediateResultB << std::endl;
-		if (intermediateResultA == (intermediateResultB+1) or intermediateResultA == intermediateResultB)
+		if (intermediateResultA == (intermediateResultB+1) || intermediateResultA == intermediateResultB)
 		{
 			dualAgent.A->score = evalGenomeCountingInitialOnes(dualAgent.A->genome);
 			dualAgent.B->score = evalGenomeCountingInitialOnes(dualAgent.B->genome);
