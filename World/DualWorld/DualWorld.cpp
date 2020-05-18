@@ -80,13 +80,11 @@ void DualWorld::initializeGeneration(std::vector<std::shared_ptr<Agent>>& popA, 
 		{
 			//popA[i]->genome[j] = Random::getInt(0, 1);
 			//popB[i]->genome[j] = Random::getInt(0, 1);
-
 			popA[i]->genome[j] = 0;
 			popB[i]->genome[j] = 0;
 			//popB[i]->genome = Random::getIndex(std::pow(2.0, tagSize)); // issues with a lot of leading zeros when tagSize > 32...
 			//popB[i]->genome = Random::getIndex(std::pow(2.0, tagSize));
 		}
-		//std::cout << "genome A: " << popA[i]->genome << "\ngenome B: " << popB[i]->genome << std::endl;
 	}
 }
 
@@ -118,7 +116,6 @@ void DualWorld::mutateSelection(std::shared_ptr<Agent>& newA, std::shared_ptr<Ag
     //emp::Binomial binomial(0.01, 1000);
     //std::cout << "pickPosition: " << binomial.PickPosition(0.01) << std::endl;
 	int numMutations = Random::getBinomial(tagSize, aMutationRatePL->get(PT));
-	//std::cout << "numMutations: " << numMutations << std::endl;
 	for (int m = 0; m < numMutations; m++)
 	{
 		newA->genome.flip(Random::getIndex(tagSize));
@@ -162,10 +159,7 @@ void DualWorld::killOldAndMakeNewGeneration(std::vector<std::shared_ptr<Agent>>&
 }
 
 double DualWorld::evalDual(DualAgent& dualAgent) {
-	//std::cout << "A: " << dualAgent.A->genome << std::endl;
-	//std::cout << "B: " << dualAgent.B->genome << std::endl << std::endl;
-
-	if (scenarioPL->get(PT) == "noSelPressureBoth") // fitness for A and B is always 1 --> no selective pressure
+	if (scenarioPL->get(PT) == "noSelPressureBoth")
 	{
 		dualAgent.A->score = 1.0;
 		dualAgent.B->score = 1.0;
@@ -185,12 +179,14 @@ double DualWorld::evalDual(DualAgent& dualAgent) {
 	}
 	else if (scenarioPL->get(PT) == "lockstep")
 	{
-		double intermediateResultA = evalGenomeCountingInitialOnes(dualAgent.A->genome);
-		double intermediateResultB = evalGenomeCountingInitialOnes(dualAgent.B->genome);
+		double intermediateResultA = evalGenomeCountingInitialOnesNeutral(dualAgent.A->genome);
+		double intermediateResultB = evalGenomeCountingInitialOnesNeutral(dualAgent.B->genome);
+		std::cout << "intA: " << intermediateResultA << " intB: " << intermediateResultB << std::endl;
 		if (intermediateResultA == intermediateResultB)
 		{
-			dualAgent.A->score = intermediateResultA;
-			dualAgent.B->score = intermediateResultB;
+			dualAgent.A->score = evalGenomeCountingInitialOnes(dualAgent.A->genome);
+			dualAgent.B->score = evalGenomeCountingInitialOnes(dualAgent.B->genome);
+			std::cout << "A: " << dualAgent.A->score << " B: " << dualAgent.B->score << std::endl;
 		}
 		else
 		{
@@ -201,16 +197,14 @@ double DualWorld::evalDual(DualAgent& dualAgent) {
 	}
 	else if (scenarioPL->get(PT) == "bFollowsA")
 	{
-		//std::cout << "A: " << dualAgent.A->genome << std::endl;
 		double intermediateResultA = evalGenomeCountingInitialOnesNeutral(dualAgent.A->genome);
-		//std::cout << "A - intermediate result: " << intermediateResultA << std::endl;
-		//std::cout << "B: " << dualAgent.B->genome << std::endl;
 		double intermediateResultB = evalGenomeCountingInitialOnesNeutral(dualAgent.B->genome);
-		//std::cout << "B - intermediate result: " << intermediateResultB << std::endl;
+		std::cout << "intA: " << intermediateResultA << " intB: " << intermediateResultB << std::endl;
 		if (intermediateResultA >= intermediateResultB)
 		{
 			dualAgent.A->score = evalGenomeCountingInitialOnes(dualAgent.A->genome);
 			dualAgent.B->score = evalGenomeCountingInitialOnes(dualAgent.B->genome);
+			std::cout << "A: " << dualAgent.A->score << " B: " << dualAgent.B->score << std::endl;
 		}
 		else
 		{
@@ -219,14 +213,16 @@ double DualWorld::evalDual(DualAgent& dualAgent) {
 		}
 		getDualScore(dualAgent, false);
 	}
-	else if (scenarioPL->get(PT) == "bExactlyFollowsA")
+	else if (scenarioPL->get(PT) == "oneOffLockstep")
 	{
-		double intermediateResultA = evalGenomeCountingInitialOnes(dualAgent.A->genome);
-		double intermediateResultB = evalGenomeCountingInitialOnes(dualAgent.B->genome);
+		double intermediateResultA = evalGenomeCountingInitialOnesNeutral(dualAgent.A->genome);
+		double intermediateResultB = evalGenomeCountingInitialOnesNeutral(dualAgent.B->genome);
+		std::cout << "intA: " << intermediateResultA << " intB: " << intermediateResultB << std::endl;
 		if (intermediateResultA == (intermediateResultB+1) or intermediateResultA == intermediateResultB)
 		{
-			dualAgent.A->score = intermediateResultA;
-			dualAgent.B->score = intermediateResultB;
+			dualAgent.A->score = evalGenomeCountingInitialOnes(dualAgent.A->genome);
+			dualAgent.B->score = evalGenomeCountingInitialOnes(dualAgent.B->genome);
+			std::cout << "A: " << dualAgent.A->score << " B: " << dualAgent.B->score << std::endl;
 		}
 		else
 		{
@@ -234,6 +230,15 @@ double DualWorld::evalDual(DualAgent& dualAgent) {
 			dualAgent.B->score = -1.0;
 		}
 		getDualScore(dualAgent, false);
+	}
+	else if (scenarioPL->get(PT) == "matchingBitsLockstep")
+	{
+		double score = evalMatchingBits(dualAgent, 10);
+		dualAgent.A->score = score;
+		dualAgent.B->score = score;
+		dualAgent.score = score;
+		dualAgent.A->dualScore = dualAgent.score;
+		dualAgent.B->dualScore = dualAgent.score;
 	}
 	else
 	{
@@ -294,6 +299,28 @@ void DualWorld::addToDataMap(DualAgent& dualAgent)
 //	return bestLongest;
 //}
 
+double DualWorld::evalMatchingBits(DualAgent& dualAgent, double multiplicationFactor)
+{
+	double score = 0.0;
+	double oneCount = 0.0;
+	for (int i = tagSize-1; i >= 0; i--) 
+	{
+		if (dualAgent.A->genome[i] == dualAgent.B->genome[i])
+		{
+			score++;
+		}
+		if (dualAgent.A->genome[i] == 1) 
+		{
+			oneCount++;
+		}
+		if (dualAgent.B->genome[i] == 1) 
+		{
+			oneCount++;
+		}
+	}
+	return (score*multiplicationFactor)+oneCount;
+}
+
 double DualWorld::evalGenomeCountingInitialOnesNeutral(std::bitset<tagSize>& testGenome)
 {
 	double score = 0.0;
@@ -329,10 +356,8 @@ double DualWorld::evalGenomeCountingInitialOnes(std::bitset<tagSize>& testGenome
 		
 		if (allOnes == false && testGenome[i] == 1) 
 		{
-			score -= (1.0/tagSize); // 0.01
+			score -= (1.0/tagSize);
 		}
-		//std::cout << i << ", " << allOnes << ", " << testGenome[i] << " : " << score << std::endl;
-
 	}
 	return score;
 }

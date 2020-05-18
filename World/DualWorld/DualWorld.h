@@ -63,6 +63,7 @@ public:
 
 	void addToDataMap(DualAgent& dualAgent);
 
+	double evalMatchingBits(DualAgent& dualAgent, double multiplicationFactor);
 	double evalGenomeCountingInitialOnesNeutral(std::bitset<tagSize>& testGenome);
 	//double evalGenomeLongestRunOne(std::bitset<tagSize>& testGenome);
 	//double evalGenomeMaxOne(std::bitset<tagSize>& testGenome);
