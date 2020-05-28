@@ -181,12 +181,10 @@ double DualWorld::evalDual(DualAgent& dualAgent) {
 	{
 		double intermediateResultA = evalGenomeCountingInitialOnesNeutral(dualAgent.A->genome);
 		double intermediateResultB = evalGenomeCountingInitialOnesNeutral(dualAgent.B->genome);
-		//std::cout << "intA: " << intermediateResultA << " intB: " << intermediateResultB << std::endl;
 		if (intermediateResultA == intermediateResultB)
 		{
 			dualAgent.A->score = evalGenomeCountingInitialOnes(dualAgent.A->genome);
 			dualAgent.B->score = evalGenomeCountingInitialOnes(dualAgent.B->genome);
-			//std::cout << "A: " << dualAgent.A->score << " B: " << dualAgent.B->score << std::endl;
 		}
 		else
 		{
@@ -199,12 +197,10 @@ double DualWorld::evalDual(DualAgent& dualAgent) {
 	{
 		double intermediateResultA = evalGenomeCountingInitialOnesNeutral(dualAgent.A->genome);
 		double intermediateResultB = evalGenomeCountingInitialOnesNeutral(dualAgent.B->genome);
-		//std::cout << "intA: " << intermediateResultA << " intB: " << intermediateResultB << std::endl;
 		if (intermediateResultA >= intermediateResultB)
 		{
 			dualAgent.A->score = evalGenomeCountingInitialOnes(dualAgent.A->genome);
 			dualAgent.B->score = evalGenomeCountingInitialOnes(dualAgent.B->genome);
-			//std::cout << "A: " << dualAgent.A->score << " B: " << dualAgent.B->score << std::endl;
 		}
 		else
 		{
@@ -217,12 +213,10 @@ double DualWorld::evalDual(DualAgent& dualAgent) {
 	{
 		double intermediateResultA = evalGenomeCountingInitialOnesNeutral(dualAgent.A->genome);
 		double intermediateResultB = evalGenomeCountingInitialOnesNeutral(dualAgent.B->genome);
-		//std::cout << "intA: " << intermediateResultA << " intB: " << intermediateResultB << std::endl;
 		if (intermediateResultA == (intermediateResultB+1) || intermediateResultA == intermediateResultB)
 		{
 			dualAgent.A->score = evalGenomeCountingInitialOnes(dualAgent.A->genome);
 			dualAgent.B->score = evalGenomeCountingInitialOnes(dualAgent.B->genome);
-			//std::cout << "A: " << dualAgent.A->score << " B: " << dualAgent.B->score << std::endl;
 		}
 		else
 		{
@@ -259,45 +253,7 @@ void DualWorld::addToDataMap(DualAgent& dualAgent)
 	dualAgent.B->org->dataMap.append("genomeScore", dualAgent.B->score);
 	dualAgent.A->org->dataMap.append("score", dualAgent.score);
 	dualAgent.B->org->dataMap.append("score", dualAgent.score);
-	//dualAgent.A->org->dataMap.append("optimizeValue", dualAgent.score);
-	//dualAgent.B->org->dataMap.append("optimizeValue", dualAgent.score);
 }
-
-//double DualWorld::evalGenomeMaxOne(std::bitset<tagSize>& testGenome)
-//{
-//	return testGenome.count();
-//}
-
-//double DualWorld::evalGenomeLongestRunOne(std::bitset<tagSize>& testGenome)
-//{
-//	double currentLongest = 0.0;
-//	double bestLongest = 0.0;
-//	for (int i = 0; i < tagSize; i++)
-//	{
-//		if (testGenome[i] == 1)
-//		{
-//			currentLongest++;
-//			for (int j = i+1; j < tagSize; j++)
-//			{
-//				if (testGenome[j] == 1)
-//				{
-//					currentLongest++;
-//				}
-//				else
-//				{
-//					break;
-//				}
-//			}
-//			if (currentLongest > bestLongest)
-//			{
-//				bestLongest = currentLongest;
-//			}
-//			i += currentLongest;
-//			currentLongest = 0.0;
-//		}
-//	}
-//	return bestLongest;
-//}
 
 double DualWorld::evalMatchingBits(DualAgent& dualAgent, double mbMultiplicationFactor, double oneMultiplicationFactor)
 {
