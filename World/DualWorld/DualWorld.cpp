@@ -181,12 +181,12 @@ double DualWorld::evalDual(DualAgent& dualAgent) {
 	{
 		double intermediateResultA = evalGenomeCountingInitialOnesNeutral(dualAgent.A->genome);
 		double intermediateResultB = evalGenomeCountingInitialOnesNeutral(dualAgent.B->genome);
-		std::cout << "intA: " << intermediateResultA << " intB: " << intermediateResultB << std::endl;
+		//std::cout << "intA: " << intermediateResultA << " intB: " << intermediateResultB << std::endl;
 		if (intermediateResultA == intermediateResultB)
 		{
 			dualAgent.A->score = evalGenomeCountingInitialOnes(dualAgent.A->genome);
 			dualAgent.B->score = evalGenomeCountingInitialOnes(dualAgent.B->genome);
-			std::cout << "A: " << dualAgent.A->score << " B: " << dualAgent.B->score << std::endl;
+			//std::cout << "A: " << dualAgent.A->score << " B: " << dualAgent.B->score << std::endl;
 		}
 		else
 		{
@@ -199,12 +199,12 @@ double DualWorld::evalDual(DualAgent& dualAgent) {
 	{
 		double intermediateResultA = evalGenomeCountingInitialOnesNeutral(dualAgent.A->genome);
 		double intermediateResultB = evalGenomeCountingInitialOnesNeutral(dualAgent.B->genome);
-		std::cout << "intA: " << intermediateResultA << " intB: " << intermediateResultB << std::endl;
+		//std::cout << "intA: " << intermediateResultA << " intB: " << intermediateResultB << std::endl;
 		if (intermediateResultA >= intermediateResultB)
 		{
 			dualAgent.A->score = evalGenomeCountingInitialOnes(dualAgent.A->genome);
 			dualAgent.B->score = evalGenomeCountingInitialOnes(dualAgent.B->genome);
-			std::cout << "A: " << dualAgent.A->score << " B: " << dualAgent.B->score << std::endl;
+			//std::cout << "A: " << dualAgent.A->score << " B: " << dualAgent.B->score << std::endl;
 		}
 		else
 		{
@@ -217,12 +217,12 @@ double DualWorld::evalDual(DualAgent& dualAgent) {
 	{
 		double intermediateResultA = evalGenomeCountingInitialOnesNeutral(dualAgent.A->genome);
 		double intermediateResultB = evalGenomeCountingInitialOnesNeutral(dualAgent.B->genome);
-		std::cout << "intA: " << intermediateResultA << " intB: " << intermediateResultB << std::endl;
+		//std::cout << "intA: " << intermediateResultA << " intB: " << intermediateResultB << std::endl;
 		if (intermediateResultA == (intermediateResultB+1) || intermediateResultA == intermediateResultB)
 		{
 			dualAgent.A->score = evalGenomeCountingInitialOnes(dualAgent.A->genome);
 			dualAgent.B->score = evalGenomeCountingInitialOnes(dualAgent.B->genome);
-			std::cout << "A: " << dualAgent.A->score << " B: " << dualAgent.B->score << std::endl;
+			//std::cout << "A: " << dualAgent.A->score << " B: " << dualAgent.B->score << std::endl;
 		}
 		else
 		{
@@ -233,7 +233,7 @@ double DualWorld::evalDual(DualAgent& dualAgent) {
 	}
 	else if (scenarioPL->get(PT) == "matchingBitsLockstep")
 	{
-		double score = evalMatchingBits(dualAgent, 10);
+		double score = evalMatchingBits(dualAgent, 10, 1);
 		dualAgent.A->score = score;
 		dualAgent.B->score = score;
 		dualAgent.score = score;
@@ -299,15 +299,15 @@ void DualWorld::addToDataMap(DualAgent& dualAgent)
 //	return bestLongest;
 //}
 
-double DualWorld::evalMatchingBits(DualAgent& dualAgent, double multiplicationFactor)
+double DualWorld::evalMatchingBits(DualAgent& dualAgent, double mbMultiplicationFactor, double oneMultiplicationFactor)
 {
-	double score = 0.0;
+	double matchingBits = 0.0;
 	double oneCount = 0.0;
 	for (int i = tagSize-1; i >= 0; i--) 
 	{
 		if (dualAgent.A->genome[i] == dualAgent.B->genome[i])
 		{
-			score++;
+			matchingBits++;
 		}
 		if (dualAgent.A->genome[i] == 1) 
 		{
@@ -318,7 +318,7 @@ double DualWorld::evalMatchingBits(DualAgent& dualAgent, double multiplicationFa
 			oneCount++;
 		}
 	}
-	return (score*multiplicationFactor)+oneCount;
+	return (matchingBits*mbMultiplicationFactor)+(oneCount*oneMultiplicationFactor);
 }
 
 double DualWorld::evalGenomeCountingInitialOnesNeutral(std::bitset<tagSize>& testGenome)
@@ -333,9 +333,9 @@ double DualWorld::evalGenomeCountingInitialOnesNeutral(std::bitset<tagSize>& tes
 		else
 		{
 			return score;
-		}
-		
+		}		
 	}
+	return score;
 }
 
 double DualWorld::evalGenomeCountingInitialOnes(std::bitset<tagSize>& testGenome)
