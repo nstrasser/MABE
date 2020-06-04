@@ -11,14 +11,14 @@
 #include "DualWorld.h"
 
 std::shared_ptr<ParameterLink<std::string>> DualWorld::scenarioPL = Parameters::register_parameter("WORLD_DUAL-scenario", (std::string) "noSelPressureBoth",
-	"Desired scenario on how agents from type A and B are combined (noSelPressureBoth, noSelPressureB, independentAddition, lockstep, bFollowsA, oneOffLockstep and matchingBitsLockstep are available).");
+	"Desired scenario on how agents from type A and B are combined (noSelPressureBoth, independentAddition, lockstep, bFollowsA, oneOffLockstep and matchingBitsLockstep are available).");
 std::shared_ptr<ParameterLink<double>> DualWorld::aMutationRatePL = Parameters::register_parameter("WORLD_DUAL-aMutationRate", 0.01,
 	"Mutation rate of agents from type A.");
 std::shared_ptr<ParameterLink<double>> DualWorld::bMutationRatePL = Parameters::register_parameter("WORLD_DUAL-bMutationRate", 0.01,
 	"Mutation rate of agents from type B.");
 
 
-DualWorld::DualWorld(std::shared_ptr<ParametersTable> PT_) : AbstractWorld(PT_) 
+DualWorld::DualWorld(std::shared_ptr<ParametersTable> PT_) : AbstractWorld(PT_)
 {
 	// columns to be added to ave file
 	popFileColumns.clear();
@@ -26,7 +26,7 @@ DualWorld::DualWorld(std::shared_ptr<ParametersTable> PT_) : AbstractWorld(PT_)
 	popFileColumns.push_back("score");
 }
 
-void DualWorld::evaluate(std::map<std::string, std::shared_ptr<Group>>& groups,	int analyze, int visualize, int debug) 
+void DualWorld::evaluate(std::map<std::string, std::shared_ptr<Group>>& groups, int analyze, int visualize, int debug)
 {
 	int popSize = groups["A::"]->population.size();
 	std::vector<std::shared_ptr<Agent>> popA(popSize);
@@ -36,9 +36,9 @@ void DualWorld::evaluate(std::map<std::string, std::shared_ptr<Group>>& groups,	
 
 	initializeGeneration(popA, popB, popDual, groups, popSize);
 
-	do 
+	do
 	{
-		for (int i = 0; i < popSize; i++) 
+		for (int i = 0; i < popSize; i++)
 		{
 			scoreDual[i] = evalDual(popDual[i]);
 			killList.insert(popDual[i].A->org);
@@ -65,7 +65,7 @@ void DualWorld::evaluate(std::map<std::string, std::shared_ptr<Group>>& groups,	
 		std::cout << "finished update: " << Global::update << std::endl;
 		Global::update++;
 	} while (!groups["A::"]->archivist->finished_ && !groups["B::"]->archivist->finished_);
-	
+
 	std::cout << "finished run!" << std::endl;
 }
 
@@ -113,8 +113,8 @@ std::tuple<std::shared_ptr<DualWorld::Agent>, std::shared_ptr<DualWorld::Agent>>
 
 void DualWorld::mutateSelection(std::shared_ptr<Agent>& newA, std::shared_ptr<Agent>& newB)
 {
-    //emp::Binomial binomial(0.01, 1000);
-    //std::cout << "pickPosition: " << binomial.PickPosition(0.01) << std::endl;
+	//emp::Binomial binomial(0.01, 1000);
+	//std::cout << "pickPosition: " << binomial.PickPosition(0.01) << std::endl;
 	int numMutations = Random::getBinomial(tagSize, aMutationRatePL->get(PT));
 	for (int m = 0; m < numMutations; m++)
 	{
@@ -136,7 +136,7 @@ void DualWorld::killOldAndMakeNewGeneration(std::vector<std::shared_ptr<Agent>>&
 
 	std::vector<std::shared_ptr<Organism>> newOrgsA;
 	std::vector<std::shared_ptr<Organism>> newOrgsB;
-	for (size_t i = 0; i < popSize*2; i++)
+	for (size_t i = 0; i < popSize * 2; i++)
 	{
 		if (killList.find(groups["A::"]->population[i]) == killList.end())
 		{ // not in killList -> move to new population
@@ -161,21 +161,17 @@ void DualWorld::killOldAndMakeNewGeneration(std::vector<std::shared_ptr<Agent>>&
 double DualWorld::evalDual(DualAgent& dualAgent) {
 	if (scenarioPL->get(PT) == "noSelPressureBoth")
 	{
-		dualAgent.A->score = 1.0;
-		dualAgent.B->score = 1.0;
-		getDualScore(dualAgent, false);
-	}
-	else if (scenarioPL->get(PT) == "noSelPressureB")
-	{
 		dualAgent.A->score = evalGenomeCountingInitialOnes(dualAgent.A->genome);
-		dualAgent.B->score = 0.0;
-		getDualScore(dualAgent, true);
-	} 
+		dualAgent.B->score = evalGenomeCountingInitialOnes(dualAgent.B->genome);
+		
+		dualAgent.score = 1.0;
+	}
 	else if (scenarioPL->get(PT) == "independentAddition")
 	{
 		dualAgent.A->score = evalGenomeCountingInitialOnes(dualAgent.A->genome);
 		dualAgent.B->score = evalGenomeCountingInitialOnes(dualAgent.B->genome);
-		getDualScore(dualAgent, true);
+		
+		dualAgent.score = dualAgent.A->score + dualAgent.B->score;
 	}
 	else if (scenarioPL->get(PT) == "lockstep")
 	{
@@ -191,7 +187,7 @@ double DualWorld::evalDual(DualAgent& dualAgent) {
 			dualAgent.A->score = -1.0;
 			dualAgent.B->score = -1.0;
 		}
-		getDualScore(dualAgent, false);
+		dualAgent.score = dualAgent.A->score + dualAgent.B->score;
 	}
 	else if (scenarioPL->get(PT) == "bFollowsA")
 	{
@@ -207,13 +203,13 @@ double DualWorld::evalDual(DualAgent& dualAgent) {
 			dualAgent.A->score = -1.0;
 			dualAgent.B->score = -1.0;
 		}
-		getDualScore(dualAgent, false);
+		dualAgent.score = dualAgent.A->score + dualAgent.B->score;
 	}
 	else if (scenarioPL->get(PT) == "oneOffLockstep")
 	{
 		double intermediateResultA = evalGenomeCountingInitialOnesNeutral(dualAgent.A->genome);
 		double intermediateResultB = evalGenomeCountingInitialOnesNeutral(dualAgent.B->genome);
-		if (intermediateResultA == (intermediateResultB+1) || intermediateResultA == intermediateResultB)
+		if (intermediateResultA == (intermediateResultB + 1) || intermediateResultA == intermediateResultB)
 		{
 			dualAgent.A->score = evalGenomeCountingInitialOnes(dualAgent.A->genome);
 			dualAgent.B->score = evalGenomeCountingInitialOnes(dualAgent.B->genome);
@@ -223,7 +219,7 @@ double DualWorld::evalDual(DualAgent& dualAgent) {
 			dualAgent.A->score = -1.0;
 			dualAgent.B->score = -1.0;
 		}
-		getDualScore(dualAgent, false);
+		dualAgent.score = dualAgent.A->score + dualAgent.B->score;
 	}
 	else if (scenarioPL->get(PT) == "matchingBitsLockstep")
 	{
@@ -231,8 +227,6 @@ double DualWorld::evalDual(DualAgent& dualAgent) {
 		dualAgent.A->score = score;
 		dualAgent.B->score = score;
 		dualAgent.score = score;
-		dualAgent.A->dualScore = dualAgent.score;
-		dualAgent.B->dualScore = dualAgent.score;
 	}
 	else
 	{
@@ -240,12 +234,15 @@ double DualWorld::evalDual(DualAgent& dualAgent) {
 		return 0.0;
 	}
 
+	dualAgent.A->dualScore = dualAgent.score;
+	dualAgent.B->dualScore = dualAgent.score;
+
 	addToDataMap(dualAgent);
 
 	return dualAgent.score;
 }
 
-void DualWorld::addToDataMap(DualAgent& dualAgent) 
+void DualWorld::addToDataMap(DualAgent& dualAgent)
 {
 	dualAgent.A->org->dataMap.append("genome", dualAgent.A->genome.to_string());
 	dualAgent.B->org->dataMap.append("genome", dualAgent.B->genome.to_string());
@@ -259,28 +256,28 @@ double DualWorld::evalMatchingBits(DualAgent& dualAgent, double mbMultiplication
 {
 	double matchingBits = 0.0;
 	double oneCount = 0.0;
-	for (int i = tagSize-1; i >= 0; i--) 
+	for (int i = tagSize - 1; i >= 0; i--)
 	{
 		if (dualAgent.A->genome[i] == dualAgent.B->genome[i])
 		{
 			matchingBits++;
 		}
-		if (dualAgent.A->genome[i] == 1) 
+		if (dualAgent.A->genome[i] == 1)
 		{
 			oneCount++;
 		}
-		if (dualAgent.B->genome[i] == 1) 
+		if (dualAgent.B->genome[i] == 1)
 		{
 			oneCount++;
 		}
 	}
-	return (matchingBits*mbMultiplicationFactor)+(oneCount*oneMultiplicationFactor);
+	return (matchingBits * mbMultiplicationFactor) + (oneCount * oneMultiplicationFactor);
 }
 
 double DualWorld::evalGenomeCountingInitialOnesNeutral(std::bitset<tagSize>& testGenome)
 {
 	double score = 0.0;
-	for (int i = tagSize-1; i >= 0; i--)
+	for (int i = tagSize - 1; i >= 0; i--)
 	{
 		if (testGenome[i] == 1)
 		{
@@ -289,7 +286,7 @@ double DualWorld::evalGenomeCountingInitialOnesNeutral(std::bitset<tagSize>& tes
 		else
 		{
 			return score;
-		}		
+		}
 	}
 	return score;
 }
@@ -298,38 +295,24 @@ double DualWorld::evalGenomeCountingInitialOnes(std::bitset<tagSize>& testGenome
 {
 	bool allOnes = true;
 	double score = 0.0;
-	for (int i = tagSize-1; i >= 0; i--)
+	for (int i = tagSize - 1; i >= 0; i--)
 	{
 		if (testGenome[i] == 0)
 		{
 			allOnes = false;
 		}
-		
+
 		if (allOnes == true && testGenome[i] == 1)
 		{
 			score++;
-		} 
-		
-		if (allOnes == false && testGenome[i] == 1) 
+		}
+
+		if (allOnes == false && testGenome[i] == 1)
 		{
-			score -= (1.0/tagSize);
+			score -= (1.0 / (tagSize*2));
 		}
 	}
 	return score;
-}
-
-void DualWorld::getDualScore(DualAgent& dualAgent, bool addition)
-{
-	if (addition)
-	{
-		dualAgent.score = dualAgent.A->score + dualAgent.B->score;
-	}
-	else
-	{
-		dualAgent.score = dualAgent.B->score;
-	}
-	dualAgent.A->dualScore = dualAgent.score;
-	dualAgent.B->dualScore = dualAgent.score;
 }
 
 std::unordered_map<std::string, std::unordered_set<std::string>> DualWorld::requiredGroups() {

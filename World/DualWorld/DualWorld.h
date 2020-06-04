@@ -67,8 +67,6 @@ public:
 	double evalGenomeCountingInitialOnesNeutral(std::bitset<tagSize>& testGenome);
 	double evalGenomeCountingInitialOnes(std::bitset<tagSize>& testGenome);
 
-	void getDualScore(DualAgent& dualAgent, bool addition);
-
 	virtual std::unordered_map<std::string, std::unordered_set<std::string>> requiredGroups() override;
 };
 
